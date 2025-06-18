@@ -34,7 +34,6 @@ const Navbar = () => {
             <span role="img" aria-label="plant" className="text-2xl">
               🌱
             </span>
-            <span className="hidden sm:inline">Plant Explorer</span>
           </Link>
 
           {/* Search Bar - Center */}
