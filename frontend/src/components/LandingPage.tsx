@@ -93,7 +93,7 @@ const LandingPage = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for plants (e.g., 'rose', 'cactus', 'tulip')"
+                placeholder="Search for plants"
                 className="w-full px-5 py-3 pr-12 text-base border-2 border-green-200 rounded-full focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100 bg-white shadow-sm"
               />
               <Button
@@ -118,10 +118,8 @@ const LandingPage = () => {
               </Button>
             </div>
           </form>
-          <span className="text-xs text-gray-400 mt-1">
-            Try: rose, cactus, tulip, sunflower, orchid
-          </span>
         </div>
+        rose
       </div>
     </div>
   );
