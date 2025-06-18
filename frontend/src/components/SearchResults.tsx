@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const plantResults = [
@@ -32,23 +32,6 @@ const plantResults = [
   },
 ];
 
-const CartIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={1.5}
-    stroke="currentColor"
-    className="w-6 h-6"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25A3.75 3.75 0 0011.25 18h1.5a3.75 3.75 0 003.75-3.75V6.75m-9 7.5h9m-9 0l-1.5-6.75m10.5 6.75l1.5-6.75m-12 0h15.75"
-    />
-  </svg>
-);
-
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
@@ -69,9 +52,10 @@ const SearchResults = () => {
         {query ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {plantResults.map((plant) => (
-              <div
+              <Link
+                to={`/plant/${plant.id}`}
                 key={plant.id}
-                className="relative rounded-2xl overflow-hidden shadow-md group h-72 flex flex-col justify-end"
+                className="relative rounded-2xl overflow-hidden shadow-md group h-72 flex flex-col justify-end transition-transform duration-200 hover:scale-105"
                 style={{
                   backgroundImage: `url(${plant.image})`,
                   backgroundSize: "cover",
@@ -91,7 +75,7 @@ const SearchResults = () => {
                     </p>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         ) : (
