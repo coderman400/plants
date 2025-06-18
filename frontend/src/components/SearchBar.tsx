@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import Tagify from "@yaireo/tagify";
 import "@yaireo/tagify/dist/tagify.css";
 
 interface SearchBarProps {
@@ -12,24 +11,33 @@ const SearchBar = ({ whitelist, onChange }: SearchBarProps) => {
   const tagifyRef = useRef<any>(null);
 
   useEffect(() => {
-    if (inputRef.current) {
-      tagifyRef.current = new Tagify(inputRef.current, {
-        whitelist,
-        dropdown: {
-          enabled: 1,
-          fuzzySearch: true,
-          position: "all",
-        },
-        enforceWhitelist: false,
-      });
+    let Tagify: any;
+    let tagifyInstance: any;
 
-      tagifyRef.current.on("change", () => {
-        const tags = tagifyRef.current.value.map((t: any) => t.value);
-        onChange(tags);
+    if (typeof window !== "undefined" && inputRef.current) {
+      import("@yaireo/tagify").then((module) => {
+        Tagify = module.default;
+        tagifyInstance = new Tagify(inputRef.current!, {
+          whitelist,
+          dropdown: {
+            enabled: 1,
+            fuzzySearch: true,
+            position: "all",
+          },
+          enforceWhitelist: false,
+        });
+
+        tagifyInstance.on("change", () => {
+          const tags = tagifyInstance.value.map((t: any) => t.value);
+          onChange(tags);
+        });
+
+        tagifyRef.current = tagifyInstance;
       });
     }
+
     return () => {
-      tagifyRef.current && tagifyRef.current.destroy();
+      if (tagifyRef.current) tagifyRef.current.destroy();
     };
   }, [whitelist, onChange]);
 
