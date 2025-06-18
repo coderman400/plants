@@ -1,39 +1,19 @@
 import { useParams, useNavigate } from "react-router-dom";
-
-const plantData = {
-  1: {
-    name: "Monstera Deliciosa",
-    scientific: "Lidah Mertua",
-    image: "/plants/monstera.jpg",
-    description:
-      "The Monstera Deliciosa, also known as the Swiss Cheese Plant, is a tropical plant famous for its large, perforated leaves. It's a favorite among plant lovers for its dramatic foliage and easy care.",
-    where:
-      "Native to Central America, commonly found in rainforests and as a popular houseplant worldwide.",
-  },
-  2: {
-    name: "Ficus Lyrata",
-    scientific: "Fiddle Leaf Fig",
-    image: "/plants/ficus.jpg",
-    description:
-      "The Fiddle Leaf Fig is known for its large, violin-shaped leaves and upright growth. It makes a bold statement in any room and thrives in bright, indirect light.",
-    where:
-      "Native to western Africa, often found in tropical rainforests and as a decorative indoor plant.",
-  },
-  3: {
-    name: "Begonia Rex",
-    scientific: "Begonia",
-    image: "/plants/begonia.jpg",
-    description:
-      "Begonia Rex is prized for its stunning, colorful foliage. The leaves come in a variety of patterns and colors, making it a standout in any plant collection.",
-    where:
-      "Native to tropical and subtropical regions, especially India and Southeast Asia.",
-  },
-};
+import { usePlantsFromGoogleSheet } from "@/lib/usePlantsFromGoogleSheet";
 
 const PlantDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const plant = plantData[Number(id) as keyof typeof plantData];
+  const { plants, loading } = usePlantsFromGoogleSheet();
+  const plant = plants.find((p) => p.id === id);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh] text-gray-500">
+        Loading...
+      </div>
+    );
+  }
 
   if (!plant) {
     return (
@@ -68,13 +48,15 @@ const PlantDetail = () => {
           {plant.scientific}
         </h2>
         <p className="text-gray-700 text-base md:text-lg mb-6 font-sans">
-          {plant.description}
+          {plant.moreInfo || plant.description || "No description available."}
         </p>
         <div className="bg-white/90 rounded-xl p-6 shadow border border-gray-100">
           <h3 className="font-bebas text-2xl text-gray-900 mb-2">
             Where to find it
           </h3>
-          <p className="text-gray-600 font-sans">{plant.where}</p>
+          <p className="text-gray-600 font-sans">
+            {plant.location || "No location info."}
+          </p>
         </div>
       </div>
     </div>

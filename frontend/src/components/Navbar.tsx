@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { usePlantsFromGoogleSheet } from "@/lib/usePlantsFromGoogleSheet";
+import type { Plant } from "@/lib/usePlantsFromGoogleSheet";
+import SearchBar from "./SearchBar";
+import { useState, useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -8,16 +10,55 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Leaf } from "lucide-react";
+
+function extractKeywords(plants: Plant[]): string[] {
+  const keywordSet = new Set<string>();
+  plants.forEach((plant: Plant) => {
+    [
+      plant.name,
+      plant.scientific,
+      plant.soilType,
+      plant.location,
+      plant.description,
+      plant.moreInfo,
+      plant.moreInfoLink,
+      plant.gpsLocation,
+      plant.genus,
+      plant.genotype,
+      plant.phenotype,
+      plant.importance,
+      plant.localNames,
+      plant.serial,
+      plant.status,
+      plant.category,
+      plant.floweringTime,
+    ]
+      .filter((field): field is string => Boolean(field))
+      .forEach((field) => {
+        field
+          .split(/,|\s|\//)
+          .map((s) => s.trim().toLowerCase())
+          .filter((word): word is string => Boolean(word))
+          .forEach((word) => keywordSet.add(word));
+      });
+  });
+  return Array.from(keywordSet).filter((k) => k.length > 2);
+}
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
+  const { plants } = usePlantsFromGoogleSheet();
+  const keywords = useMemo(() => extractKeywords(plants), [plants]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery(""); // Clear search after navigation
+  const handleTagSearch = (tags: string[]) => {
+    setSelectedTags(tags);
+  };
+
+  const handleSearchButton = () => {
+    if (selectedTags.length > 0) {
+      navigate(`/search?tags=${encodeURIComponent(selectedTags.join(","))}`);
     }
   };
 
@@ -30,57 +71,31 @@ const Navbar = () => {
             to="/"
             className="flex items-center gap-2 text-green-700 font-bold text-xl hover:text-green-800 transition-colors"
           >
-            <span role="img" aria-label="plant" className="text-2xl">
-              🌱
-            </span>
+            <Leaf className="w-6 h-6 text-green-700" />
           </Link>
 
-          {/* Search Bar - Center */}
-          <div className="flex-1 max-w-2xl mx-4">
-            <form onSubmit={handleSearch} className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search plants..."
-                className="w-full px-4 py-2 pl-10 pr-10 text-sm bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:bg-white"
-              />
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-              <Button
-                type="submit"
-                size="sm"
-                variant="ghost"
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0 hover:bg-green-100 rounded-full transition-colors"
+          {/* Tagify SearchBar + Search Button */}
+          <div className="flex-1 max-w-xl mx-4 flex items-center gap-2">
+            <SearchBar whitelist={keywords} onChange={handleTagSearch} />
+            <button
+              onClick={handleSearchButton}
+              className="ml-2 p-2 rounded-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center"
+              aria-label="Search"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <svg
-                  className="w-4 h-4 text-gray-500 hover:text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </Button>
-            </form>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </button>
           </div>
 
           {/* User Avatar & Dropdown */}
