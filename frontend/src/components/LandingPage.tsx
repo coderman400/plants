@@ -66,7 +66,8 @@ const LandingPage = () => {
         {/* Hide fluff content on mobile */}
         <div className="hidden md:flex flex-1 flex-col items-end gap-6">
           <p className="text-lg text-gray-600 max-w-md mb-2">
-            Just search with names, scientific names, or even soil types!
+            Just search with names, scientific names, soil types, genotypes,
+            whatever you want!
           </p>
         </div>
       </div>
