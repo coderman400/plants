@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import "@yaireo/tagify/dist/tagify.css";
 
 interface SearchBarProps {
   whitelist: string[];
